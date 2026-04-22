@@ -9,7 +9,7 @@ const app = express();
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const LINE_TOKEN = process.env.LINE_TOKEN;
 // URLをブロードキャスト（全員送信）用に固定
-const LINE_URL = 'https://line.me';
+const LINE_URL = 'https://api.line.me/v2/bot/message/push';
 
 // Discordクライアントを作成
 const client = new Client({
