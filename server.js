@@ -9,7 +9,7 @@ const app = express();
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const LINE_TOKEN = process.env.LINE_TOKEN;
 // URLをブロードキャスト（全員送信）用に固定
-const LINE_URL = 'https://api.line.me/v2/bot/message/push';
+const LINE_URL = 'https://api.line.me/v2/bot/message/broadcast';
 
 // Discordクライアントを作成
 const client = new Client({
@@ -30,12 +30,13 @@ async function sendToLine(token, message) {
   try {
     await axios({
       method: 'post',
-      url: LINE_URL,
+      url: 'https://api.line.me/v2/bot/message/broadcast', // 変数を使わず直接書く
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
       data: {
+        // broadcast（一斉送信）なので、ここに "to" は不要
         messages: [{
           type: 'text',
           text: message
@@ -44,7 +45,6 @@ async function sendToLine(token, message) {
     });
     console.log('LINE一斉送信に成功しました');
   } catch (error) {
-    // 詳細なエラー理由を表示
     console.error('LINE一斉送信失敗:', error.response ? JSON.stringify(error.response.data) : error.message);
   }
 }
