@@ -9,7 +9,7 @@ const app = express();
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const LINE_TOKEN = process.env.LINE_TOKEN;
 const USER_ID = process.env.USER_ID;
-const LINE_URL = 'https://api.line.me/v2/bot/message/push';
+const LINE_URL = 'https://line.me';
 
 // Discordクライアントを作成
 const client = new Client({
@@ -22,14 +22,17 @@ client.once('ready', () => {
 });
 
 // LINEにメッセージを送信する関数
-async function sendToLine(token, userId, message) {
+async function sendToLine(token, message) { // 引数からuserIdを消してもOK
   try {
-    await axios.post(LINE_URL, { to: userId, messages: [{ type: 'text', text: message }] }, {
+    // 修正ポイント: payloadから「to」を削除し、宛先指定をなくす
+    await axios.post(LINE_URL, { 
+      messages: [{ type: 'text', text: message }] 
+    }, {
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
     });
-    console.log(`LINEに転送成功 (User: ${userId})`);
+    console.log(`LINEに一斉送信（ブロードキャスト）成功`);
   } catch (error) {
-    console.error(`LINE転送失敗 (User: ${userId}): ${error.message}`);
+    console.error(`LINE一斉送信失敗: ${error.message}`);
   }
 }
 
@@ -54,9 +57,9 @@ client.on('messageCreate', async (message) => {
     }
   }
 
-  if (lineMessage.trim() !== `${message.author.username} in #${message.channel.name}:`) {
-    await sendToLine(LINE_TOKEN, USER_ID, lineMessage); // LINEに送信
-  }
+if (lineMessage.trim() !== `${message.author.username} in #${message.channel.name}:`) {
+  await sendToLine(LINE_TOKEN, lineMessage); // USER_IDを渡さなくてよくなります
+}
 });
 
 // Expressサーバーの稼働確認用エンドポイント
