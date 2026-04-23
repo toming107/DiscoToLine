@@ -30,7 +30,7 @@ async function sendToLine(token, message) {
   try {
     await axios({
       method: 'post',
-      url: 'https://api.line.me/v2/bot/message/broadcast', // 変数を使わず直接書く
+      url: LINE_URL,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -51,8 +51,9 @@ async function sendToLine(token, message) {
 
 // Discordメッセージ受信時の処理
 client.on('messageCreate', async (message) => {
-  // 自分（Bot）の投稿や、Botからのメッセージを除外
-  if (message.author.bot) return;
+  // 自分自身のループ（Bot自身がLINEに送った内容をまた読み込むなど）を防ぎたい場合は、
+  // 以下のように「自分自身（このBot）」だけを除外するのが安全です。
+  if (message.author.id === client.user.id) return;
 
   let lineMessage = `${message.author.username} in #${message.channel.name}:\n`;
 
